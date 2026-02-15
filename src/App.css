@@ -1,0 +1,219 @@
+/* layout */
+.container{
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 18px 18px 28px;
+}
+
+.header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.title{
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+.sub{
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* panels */
+.panel{
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.grid{
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 16px;
+}
+
+.controls{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.row{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* form controls */
+select, input[type="number"]{
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 10px;
+  outline: none;
+}
+
+input[type="range"]{
+  accent-color: var(--blue);
+}
+
+/* buttons */
+.btn{
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 9px 12px;
+  cursor: pointer;
+  transition: transform 120ms ease, background 120ms ease;
+  font-weight: 650;
+}
+
+.btn:hover{ background: rgba(255,255,255,0.09); }
+.btn:active{ transform: translateY(1px); }
+
+.btnPrimary{
+  background: rgba(106,169,255,0.16);
+  border-color: rgba(106,169,255,0.35);
+}
+
+.btnDanger{
+  background: rgba(255,106,122,0.16);
+  border-color: rgba(255,106,122,0.35);
+}
+
+.btnSuccess{
+  background: rgba(74,222,128,0.14);
+  border-color: rgba(74,222,128,0.35);
+}
+
+.pill{
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* pseudocode */
+.code{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+  display: grid;
+  gap: 6px;
+}
+
+.codeLine{
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: transparent;
+}
+
+.codeLineActive{
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.10);
+}
+
+/* explanation box */
+.explainTitle{ font-size: 14px; font-weight: 800; margin-bottom: 6px; }
+.explainText{ color: var(--text); font-size: 14px; }
+.metrics{ margin-top: 10px; display: flex; gap: 14px; flex-wrap: wrap; color: var(--muted); font-size: 12px; }
+
+/* ---- Gamified UI ---- */
+.hud{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.hudChip{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.05);
+  font-size: 12px;
+  color: rgba(255,255,255,0.82);
+}
+
+.hudChip b{ color: rgba(255,255,255,0.92); }
+
+.tabs{
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.tab{
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.04);
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 12px;
+  color: rgba(255,255,255,0.78);
+}
+
+.tab:hover{
+  background: rgba(255,255,255,0.07);
+}
+
+.tabActive{
+  background: rgba(106,169,255,0.14);
+  border-color: rgba(106,169,255,0.35);
+  color: rgba(255,255,255,0.92);
+}
+
+.challengeCard{
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.03);
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.optionGrid{
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.optionBtn{
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.86);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.optionBtn:hover{
+  background: rgba(255,255,255,0.08);
+}
+
+.optionBtnSelected{
+  border-color: rgba(255,209,102,0.55);
+  background: rgba(255,209,102,0.12);
+}
+
+.feedback{
+  margin-top: 10px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.70);
+  line-height: 1.4;
+}
