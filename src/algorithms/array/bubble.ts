@@ -53,7 +53,7 @@ export function bubbleSortSteps(input: number[]): ArrayState[] {
           array: a.slice(),
           swapped: [j, j + 1],
           highlight: [j, j + 1],
-          message: `Swap: because ${a[j]} should come before ${a[j + 1]}.`,
+          message: `swapped: because ${a[j]} should come before ${a[j + 1]}.`,
           comparisons,
           swaps,
           passes,

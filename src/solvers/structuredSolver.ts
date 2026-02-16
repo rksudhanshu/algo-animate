@@ -152,7 +152,7 @@ export function solveStructured(problemText: string): StructuredSolve {
     algoId,
     algoName: algo.name,
     inputArray: arr,
-    finalAnswerText: `Sorted: [${sorted.join(", ")}]`,
+    finalAnswerText: `sortedIndices: [${sorted.join(", ")}]`,
     visualizePayload: { inputArray: arr },
   };
 }

@@ -78,7 +78,7 @@ export function selectionSortSteps(input: number[]): ArrayState[] {
         array: a.slice(),
         swapped: [i, minIdx],
         highlight: [i, minIdx],
-        message: `Swap: place minimum into position ${i} (swap indices ${i} and ${minIdx}).`,
+        message: `swapped: place minimum into position ${i} (swap indices ${i} and ${minIdx}).`,
         comparisons,
         swaps,
         passes,
