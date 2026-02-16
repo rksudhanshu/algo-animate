@@ -6,69 +6,89 @@ export function binarySearchStates(sortedInput: number[], target: number): Array
 
   let low = 0;
   let high = arr.length - 1;
+
   let comparisons = 0;
+  let swaps = 0;
+  let passes = 0;
+  let writes = 0;
 
   frames.push({
-    array: arr,
+    array: arr.slice(),
+    highlight: arr.length ? [0, arr.length - 1] : [],
     message: `Start Binary Search for target=${target}. (Array must be sorted.)`,
-    line: 1,
-    vars: { low, high },
-    metrics: { comparisons },
+    comparisons,
+    swaps,
+    passes,
+    writes,
   });
 
   while (low <= high) {
     const mid = Math.floor((low + high) / 2);
+
     comparisons += 1;
 
     frames.push({
-      array: arr,
-      highlight: [low, mid, high],
-      message: `Compute mid = floor((low+high)/2) = ${mid}. Compare a[mid]=${arr[mid]} with target.`,
-      line: 2,
-      vars: { low, mid, high },
-      metrics: { comparisons },
+      array: arr.slice(),
+      highlight: [low, mid, high].filter((i) => i >= 0 && i < arr.length),
+      comparing: [mid],
+      message: `Compute mid=${mid} (low=${low}, high=${high}). Compare a[mid]=${arr[mid]} with target=${target}.`,
+      comparisons,
+      swaps,
+      passes,
+      writes,
     });
 
     if (arr[mid] === target) {
       frames.push({
-        array: arr,
+        array: arr.slice(),
         highlight: [mid],
-        message: `Found target at index ${mid}.`,
-        line: 3,
-        vars: { low, mid, high },
-        metrics: { comparisons },
+        sortedIndices: [mid],
+        message: `✅ Found target at index ${mid}.`,
+        comparisons,
+        swaps,
+        passes,
+        writes,
       });
       return frames;
     }
 
+    passes += 1;
+
     if (arr[mid] < target) {
       low = mid + 1;
+
       frames.push({
-        array: arr,
-        highlight: [low, high],
-        message: `a[mid] < target, discard left half (including mid). New low=${low}.`,
-        line: 4,
-        vars: { low, mid, high },
-        metrics: { comparisons },
+        array: arr.slice(),
+        highlight: [low, high].filter((i) => i >= 0 && i < arr.length),
+        message: `a[mid] < target → discard left half. New low=${low}.`,
+        comparisons,
+        swaps,
+        passes,
+        writes,
       });
     } else {
       high = mid - 1;
+
       frames.push({
-        array: arr,
-        highlight: [low, high],
-        message: `a[mid] > target, discard right half (including mid). New high=${high}.`,
-        line: 5,
-        vars: { low, mid, high },
-        metrics: { comparisons },
+        array: arr.slice(),
+        highlight: [low, high].filter((i) => i >= 0 && i < arr.length),
+        message: `a[mid] > target → discard right half. New high=${high}.`,
+        comparisons,
+        swaps,
+        passes,
+        writes,
       });
     }
   }
 
   frames.push({
-    array: arr,
-    message: "Not found: target is not in the array.",
-    line: 6,
-    metrics: { comparisons },
+    array: arr.slice(),
+    highlight: [],
+    message: `❌ Not found: target=${target} is not in the array.`,
+    comparisons,
+    swaps,
+    passes,
+    writes,
   });
 
   return frames;

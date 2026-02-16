@@ -1,13 +1,12 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { CSSProperties } from "react";
+
 import { ArrayRenderer } from "../renderers/ArrayRenderer";
 import type { ArrayState } from "../algorithms/types";
 
 import { bubbleSortSteps } from "../algorithms/array/bubble";
 import { insertionSortSteps } from "../algorithms/array/insertion";
 import { selectionSortSteps } from "../algorithms/array/selection";
-
-import AlgorithmInfoCard, { type AlgoInfo } from "../components/AlgorithmInfoCard";
-import LearnModePanel, { type LearnQuestion } from "../components/LearnModePanel";
 
 type AlgoKey = "bubble" | "insertion" | "selection";
 type RightTab = "teaching" | "complexity";
@@ -59,149 +58,7 @@ function fmt(n: number) {
   return `${(n / 1_000_000_000).toFixed(2)}B`;
 }
 
-/* ---------------- Learn Mode (static micro-lesson) ---------------- */
-
-const INFO_BY_ALGO: Record<AlgoKey, AlgoInfo> = {
-  bubble: {
-    id: "bubble",
-    name: "Bubble Sort",
-    category: "Sorting",
-    short: "Compares adjacent elements and swaps them if out of order. Repeats passes until sorted.",
-    whenToUse: [
-      "Learning / teaching (very visual).",
-      "Very small arrays.",
-      "When you want to demonstrate swaps clearly.",
-    ],
-    complexity: { best: "O(n) (already sorted)", average: "O(n²)", worst: "O(n²)", space: "O(1)" },
-    stable: true,
-    inPlace: true,
-    notes: ["Each pass pushes the largest element to the end.", "Slow for big inputs — great for learning."],
-  },
-  insertion: {
-    id: "insertion",
-    name: "Insertion Sort",
-    category: "Sorting",
-    short: "Builds a sorted region on the left; inserts each next element into the correct position by shifting.",
-    whenToUse: [
-      "Small arrays.",
-      "Nearly sorted data (very fast).",
-      "Good mental model (like sorting cards).",
-    ],
-    complexity: { best: "O(n) (nearly sorted)", average: "O(n²)", worst: "O(n²)", space: "O(1)" },
-    stable: true,
-    inPlace: true,
-    notes: ["Fast when only a few elements are out of place.", "Main cost is shifting elements."],
-  },
-  selection: {
-    id: "selection",
-    name: "Selection Sort",
-    category: "Sorting",
-    short: "Selects the minimum from the unsorted region and swaps it into the next sorted position.",
-    whenToUse: [
-      "Learning / teaching (simple rule).",
-      "When swap count matters (≤ one swap per pass).",
-      "Very small arrays.",
-    ],
-    complexity: { best: "O(n²)", average: "O(n²)", worst: "O(n²)", space: "O(1)" },
-    stable: false,
-    inPlace: true,
-    notes: ["Always does ~n² comparisons even if already sorted.", "Few swaps but still slow overall."],
-  },
-};
-
-const LEARN_QUESTIONS_BY_ALGO: Record<AlgoKey, LearnQuestion[]> = {
-  bubble: [
-    {
-      id: "b1",
-      prompt: "What is Bubble Sort doing repeatedly?",
-      options: [
-        { id: "a", text: "Pick minimum each pass", why: "That’s Selection Sort." },
-        { id: "b", text: "Compare neighbors and swap if needed", correct: true, why: "Correct. Bubble compares adjacent elements and swaps if out of order." },
-        { id: "c", text: "Split and merge halves", why: "That’s Merge Sort." },
-      ],
-      tip: "Think: neighbors keep swapping until sorted.",
-    },
-    {
-      id: "b2",
-      prompt: "After one full pass of Bubble Sort, what is guaranteed?",
-      options: [
-        { id: "a", text: "Smallest is at the front", why: "Not guaranteed. Bubble pushes the largest to the end." },
-        { id: "b", text: "Largest is at the end", correct: true, why: "Yes. The largest element ‘bubbles’ to the end after a full pass." },
-        { id: "c", text: "Everything is sorted", why: "Only if it was already sorted or nearly sorted." },
-      ],
-    },
-    {
-      id: "b3",
-      prompt: "Why does Bubble Sort have worst-case O(n²)?",
-      options: [
-        { id: "a", text: "It uses recursion", why: "Bubble Sort does not require recursion." },
-        { id: "b", text: "Nested passes of comparisons", correct: true, why: "Correct. Roughly n passes × ~n comparisons per pass → ~n²." },
-        { id: "c", text: "It uses extra memory", why: "It’s in-place: O(1) space." },
-      ],
-    },
-  ],
-  insertion: [
-    {
-      id: "i1",
-      prompt: "Insertion Sort grows which region?",
-      options: [
-        { id: "a", text: "Sorted region on the left", correct: true, why: "Yes. It keeps the left side sorted and inserts the next element into it." },
-        { id: "b", text: "Sorted region on the right", why: "Not the typical insertion approach." },
-        { id: "c", text: "No sorted region; it just swaps randomly", why: "No. It builds order systematically." },
-      ],
-      tip: "Like sorting cards in your hand.",
-    },
-    {
-      id: "i2",
-      prompt: "When is Insertion Sort fastest?",
-      options: [
-        { id: "a", text: "Nearly sorted input", correct: true, why: "Correct. Few shifts needed → close to O(n)." },
-        { id: "b", text: "Reverse sorted input", why: "That is worst-case. Many shifts required." },
-        { id: "c", text: "Always the same speed", why: "No, it depends on how sorted the data already is." },
-      ],
-    },
-    {
-      id: "i3",
-      prompt: "What is the main cost in Insertion Sort?",
-      options: [
-        { id: "a", text: "Shifting elements to make room", correct: true, why: "Correct. Insertion often shifts a block to insert the key." },
-        { id: "b", text: "Building a heap", why: "That’s Heap Sort." },
-        { id: "c", text: "Merging two sorted lists", why: "That’s Merge Sort." },
-      ],
-    },
-  ],
-  selection: [
-    {
-      id: "s1",
-      prompt: "What does Selection Sort do each pass?",
-      options: [
-        { id: "a", text: "Find minimum in unsorted region and place it next", correct: true, why: "Yes. One minimum selected per pass." },
-        { id: "b", text: "Compare neighbors and swap repeatedly", why: "That’s Bubble Sort." },
-        { id: "c", text: "Shift elements until key is inserted", why: "That’s Insertion Sort." },
-      ],
-    },
-    {
-      id: "s2",
-      prompt: "Why is Selection Sort always O(n²) comparisons?",
-      options: [
-        { id: "a", text: "It scans remaining unsorted section each pass", correct: true, why: "Correct. It must scan to find the minimum every pass." },
-        { id: "b", text: "It uses recursion", why: "No recursion is needed." },
-        { id: "c", text: "It’s unstable", why: "Stability is separate from time complexity." },
-      ],
-    },
-    {
-      id: "s3",
-      prompt: "Selection Sort often uses fewer swaps than Bubble Sort. Why?",
-      options: [
-        { id: "a", text: "At most one swap per pass", correct: true, why: "Correct. It swaps only when placing the selected minimum." },
-        { id: "b", text: "It never swaps", why: "It swaps to place the minimum." },
-        { id: "c", text: "It uses extra memory to avoid swaps", why: "No, it is in-place." },
-      ],
-    },
-  ],
-};
-
-/* ---------------- Quiz Engine (your existing) ---------------- */
+/* ---------------- Quiz Engine ---------------- */
 
 type Quiz = {
   stepIndex: number;
@@ -261,9 +118,9 @@ function buildInsertionCompareQuiz(step: ArrayState, stepIndex: number): Quiz | 
     prompt: `Will insertion sort shift this element to the right?`,
     options: ["No ✅ (stop shifting)", "Yes ❌ (shift right)"],
     correct: ok ? 0 : 1,
-    explanation: `Insertion compares key = ${key} with a[${j}] = ${aj}. Since ${aj} ${
-      ok ? "≤" : ">"
-    } ${key}, we ${ok ? "stop shifting (correct position found)" : "shift a[j] right to make space for the key"}.`,
+    explanation: `Insertion compares key = ${key} with a[${j}] = ${aj}. Since ${aj} ${ok ? "≤" : ">"} ${key}, we ${
+      ok ? "stop shifting (correct position found)" : "shift a[j] right to make space for the key"
+    }.`,
   };
 }
 
@@ -278,7 +135,6 @@ export default function VisualizerPage() {
 
   const [teachingMode, setTeachingMode] = useState(true);
   const [quizMode, setQuizMode] = useState(true);
-  const [learnMode, setLearnMode] = useState(false); // ✅ NEW
   const [quiz, setQuiz] = useState<Quiz | null>(null);
 
   const [tab, setTab] = useState<RightTab>("teaching");
@@ -305,9 +161,6 @@ export default function VisualizerPage() {
 
   const current = steps[index];
   const arrayLen = current?.array?.length ?? parsedInput.length ?? 0;
-
-  const infoCard = INFO_BY_ALGO[algo];
-  const learnQuestions = LEARN_QUESTIONS_BY_ALGO[algo];
 
   function load() {
     const fn = ALGO_META[algo].fn;
@@ -474,11 +327,6 @@ export default function VisualizerPage() {
         setQuizMode((q) => !q);
         return;
       }
-      if (e.key.toLowerCase() === "l") {
-        e.preventDefault();
-        setLearnMode((l) => !l);
-        return;
-      }
     };
 
     window.addEventListener("keydown", onKeyDown);
@@ -509,7 +357,7 @@ export default function VisualizerPage() {
         <div>
           <div style={{ fontSize: 22, fontWeight: 900 }}>Algo Animate — Student Edition</div>
           <div style={{ color: "rgba(255,255,255,0.65)", marginTop: 4 }}>
-            {algoName} • Space Play/Pause • ←/→ Step • R Reload • T Teaching • Q Quiz • L Learn
+            {algoName} • Space Play/Pause • ←/→ Step • R Reload • T Teaching • Q Quiz
           </div>
         </div>
       </div>
@@ -591,7 +439,6 @@ export default function VisualizerPage() {
           <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
             <ToggleButton on={teachingMode} label="Teaching" onClick={() => setTeachingMode((t) => !t)} />
             <ToggleButton on={quizMode} label="Quiz" onClick={() => setQuizMode((q) => !q)} />
-            <ToggleButton on={learnMode} label="Learn" onClick={() => setLearnMode((l) => !l)} />
           </div>
         </div>
       </div>
@@ -658,11 +505,6 @@ export default function VisualizerPage() {
             padding: 16,
           }}
         >
-          {/* ✅ NEW: Algorithm Info Card always visible */}
-          <div style={{ marginBottom: 12 }}>
-            <AlgorithmInfoCard info={infoCard} />
-          </div>
-
           <div style={{ display: "flex", gap: 10, marginBottom: 12 }}>
             <button onClick={() => setTab("teaching")} style={tabBtn(tab === "teaching")}>
               Teaching
@@ -678,13 +520,6 @@ export default function VisualizerPage() {
               <div style={box()}>
                 <div style={{ fontSize: 12, color: "rgba(255,255,255,0.86)", lineHeight: 1.35 }}>{invariant}</div>
               </div>
-
-              {/* ✅ NEW: Learn Mode panel */}
-              {learnMode && (
-                <div style={{ marginTop: 12 }}>
-                  <LearnModePanel algorithmName={algoName} questions={learnQuestions} />
-                </div>
-              )}
 
               {quizMode && quiz && quiz.stepIndex === index && (
                 <div
@@ -829,9 +664,9 @@ export default function VisualizerPage() {
                 </div>
 
                 {[10, 100, 1000].map((n) => {
-                  const r = growthRows.find((x) => x.n === n)!;
+                  const { best, worst } = estimateWorstComparisons(algo, n);
                   const isFocus = n === growthN;
-                  const pct = Math.min(r.worst / growthMaxWorst, 1);
+                  const pct = Math.min(worst / growthMaxWorst, 1);
 
                   return (
                     <div
@@ -846,7 +681,7 @@ export default function VisualizerPage() {
                     >
                       <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
                         <div style={{ fontWeight: 900, color: "rgba(255,255,255,0.88)" }}>n = {n}</div>
-                        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.70)" }}>worst ≈ {fmt(r.worst)}</div>
+                        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.70)" }}>worst ≈ {fmt(worst)}</div>
                       </div>
 
                       <div
@@ -870,7 +705,7 @@ export default function VisualizerPage() {
                       </div>
 
                       <div style={{ marginTop: 8, fontSize: 12, color: "rgba(255,255,255,0.72)" }}>
-                        Best ≈ {fmt(r.best)} • Worst ≈ {fmt(r.worst)}
+                        Best ≈ {fmt(best)} • Worst ≈ {fmt(worst)}
                       </div>
                     </div>
                   );
@@ -886,7 +721,7 @@ export default function VisualizerPage() {
 
 /* ---------- UI helpers ---------- */
 
-function btn(): React.CSSProperties {
+function btn(): CSSProperties {
   return {
     padding: "10px 12px",
     borderRadius: 10,
@@ -898,7 +733,7 @@ function btn(): React.CSSProperties {
   };
 }
 
-function btnPrimary(): React.CSSProperties {
+function btnPrimary(): CSSProperties {
   return {
     ...btn(),
     background: "rgba(106,169,255,0.22)",
@@ -906,7 +741,7 @@ function btnPrimary(): React.CSSProperties {
   };
 }
 
-function tabBtn(active: boolean): React.CSSProperties {
+function tabBtn(active: boolean): CSSProperties {
   return {
     padding: "8px 10px",
     borderRadius: 10,
@@ -920,7 +755,7 @@ function tabBtn(active: boolean): React.CSSProperties {
   };
 }
 
-function box(extra?: React.CSSProperties): React.CSSProperties {
+function box(extra?: CSSProperties): CSSProperties {
   return {
     marginTop: 10,
     padding: 12,
