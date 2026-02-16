@@ -1,11 +1,5 @@
 // src/algorithms/registry.ts
 
-/**
- * IMPORTANT:
- * Your components currently export default components, not named types.
- * So we define the required types locally to avoid TS2614 import errors.
- */
-
 export type AlgorithmRegistryItem = {
   id: string;
   name: string;
@@ -18,12 +12,7 @@ export type AlgoInfo = {
   category: "Sorting" | "Searching" | "Other";
   short: string;
   whenToUse: string[];
-  complexity: {
-    best: string;
-    average: string;
-    worst: string;
-    space: string;
-  };
+  complexity: { best: string; average: string; worst: string; space: string };
   stable?: boolean;
   inPlace?: boolean;
   notes?: string[];
