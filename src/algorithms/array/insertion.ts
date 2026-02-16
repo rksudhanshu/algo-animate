@@ -1,7 +1,7 @@
 import type { ArrayState } from "../types";
 
 export function insertionSortSteps(input: number[]): ArrayState[] {
-  const arr = [...input];
+  const a = input.slice();
   const steps: ArrayState[] = [];
 
   let comparisons = 0;
@@ -9,72 +9,65 @@ export function insertionSortSteps(input: number[]): ArrayState[] {
   let passes = 0;
   let writes = 0;
 
+  const n = a.length;
+
   steps.push({
-    array: [...arr],
-    message: "Starting Insertion Sort (left side stays sorted)",
+    array: a.slice(),
+    message:
+      "Start Insertion Sort: the left part is kept sorted; each step inserts the next element into the correct position.",
     comparisons,
     swaps,
     passes,
     writes,
+    sortedIndices: n > 0 ? [0] : [],
   });
 
-  const n = arr.length;
-
-  if (n > 0) {
-    steps.push({
-      array: [...arr],
-      sorted: [0],
-      comparisons,
-      swaps,
-      passes,
-      writes,
-      message: "Start: index 0 is sorted by definition",
-    });
-  }
-
   for (let i = 1; i < n; i++) {
-    passes++;
-    const key = arr[i];
+    const key = a[i];
     let j = i - 1;
 
+    // left side (0..i-1) considered sorted at this moment
     steps.push({
-      array: [...arr],
+      array: a.slice(),
       highlight: [i],
-      sorted: Array.from({ length: i }, (_, k) => k),
+      activeIndices: [i],
+      message: `Take key=a[${i}]=${key}. Insert it into the sorted region (0..${i - 1}).`,
       comparisons,
       swaps,
       passes,
       writes,
-      message: `Take key = a[${i}] = ${key}. Insert it into the sorted left side.`,
+      sortedIndices: Array.from({ length: i }, (_, k) => k),
     });
 
     while (j >= 0) {
-      comparisons++;
+      comparisons += 1;
 
       steps.push({
-        array: [...arr],
+        array: a.slice(),
+        comparing: [j, j + 1],
         highlight: [j, j + 1],
-        sorted: Array.from({ length: i }, (_, k) => k),
+        message: `Compare key=${key} with a[${j}]=${a[j]}. If a[j] > key, shift right.`,
         comparisons,
         swaps,
         passes,
         writes,
-        message: `Compare key ${key} with a[${j}] = ${arr[j]}`,
+        sortedIndices: Array.from({ length: i }, (_, k) => k),
       });
 
-      if (arr[j] > key) {
-        arr[j + 1] = arr[j];
-        writes++;
+      if (a[j] > key) {
+        a[j + 1] = a[j];
+        writes += 1;
 
         steps.push({
-          array: [...arr],
+          array: a.slice(),
+          swapped: [j, j + 1], // used as a "movement" indicator
           highlight: [j, j + 1],
-          sorted: Array.from({ length: i }, (_, k) => k),
+          message: `Shift: move a[${j}] to a[${j + 1}] to make space.`,
           comparisons,
           swaps,
           passes,
           writes,
-          message: `a[${j}] is bigger → shift it right to index ${j + 1}`,
+          sortedIndices: Array.from({ length: i }, (_, k) => k),
         });
 
         j--;
@@ -83,28 +76,30 @@ export function insertionSortSteps(input: number[]): ArrayState[] {
       }
     }
 
-    arr[j + 1] = key;
-    writes++;
+    a[j + 1] = key;
+    writes += 1;
+    passes += 1;
 
     steps.push({
-      array: [...arr],
-      sorted: Array.from({ length: i + 1 }, (_, k) => k),
+      array: a.slice(),
+      highlight: [j + 1],
+      message: `Place key=${key} at index ${j + 1}. Now (0..${i}) is sorted.`,
       comparisons,
       swaps,
       passes,
       writes,
-      message: `Place key ${key} at index ${j + 1}. Left side (0..${i}) is now sorted.`,
+      sortedIndices: Array.from({ length: i + 1 }, (_, k) => k),
     });
   }
 
   steps.push({
-    array: [...arr],
-    sorted: [...Array(n).keys()],
+    array: a.slice(),
+    sortedIndices: Array.from({ length: n }, (_, i) => i),
+    message: "Array sorted successfully. ✅",
     comparisons,
     swaps,
     passes,
     writes,
-    message: "Array sorted successfully (Insertion Sort)",
   });
 
   return steps;

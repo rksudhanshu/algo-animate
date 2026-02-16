@@ -8,7 +8,7 @@ export interface ArrayState {
   activeIndices?: number[];  // indices currently active
   comparing?: number[];      // indices being compared
   swapped?: number[];        // indices swapped
-  sortedIndices?: number[];  // indices considered sorted/final
+  sorted?: number[];  // indices considered sorted/final
 
   // UI text
   message?: string;

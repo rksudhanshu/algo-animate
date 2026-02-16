@@ -1,7 +1,7 @@
 import type { ArrayState } from "../types";
 
 export function bubbleSortSteps(input: number[]): ArrayState[] {
-  const arr = [...input];
+  const a = input.slice();
   const steps: ArrayState[] = [];
 
   let comparisons = 0;
@@ -9,79 +9,103 @@ export function bubbleSortSteps(input: number[]): ArrayState[] {
   let passes = 0;
   let writes = 0;
 
+  const n = a.length;
+  const sortedIndices: number[] = [];
+
   steps.push({
-    array: [...arr],
-    message: "Starting Bubble Sort",
+    array: a.slice(),
+    message: "Start Bubble Sort: compare adjacent items and swap if they are out of order.",
     comparisons,
     swaps,
     passes,
     writes,
+    sortedIndices: sortedIndices.slice(),
   });
 
-  const n = arr.length;
-  const sortedIdx: number[] = [];
+  for (let pass = 0; pass < n - 1; pass++) {
+    let didSwap = false;
 
-  for (let i = 0; i < n - 1; i++) {
-    passes++;
-
-    for (let j = 0; j < n - i - 1; j++) {
-      comparisons++;
+    for (let j = 0; j < n - 1 - pass; j++) {
+      comparisons += 1;
 
       steps.push({
-        array: [...arr],
+        array: a.slice(),
+        comparing: [j, j + 1],
         highlight: [j, j + 1],
-        sorted: [...sortedIdx],
+        message: `Compare a[${j}]=${a[j]} and a[${j + 1}]=${a[j + 1]}.`,
         comparisons,
         swaps,
         passes,
         writes,
-        message: `Compare a[${j}] = ${arr[j]} and a[${j + 1}] = ${arr[j + 1]}`,
+        sortedIndices: sortedIndices.slice(),
       });
 
-      if (arr[j] > arr[j + 1]) {
-        swaps++;
-        writes += 2;
+      if (a[j] > a[j + 1]) {
+        const tmp = a[j];
+        a[j] = a[j + 1];
+        a[j + 1] = tmp;
 
-        [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+        swaps += 1;
+        writes += 2;
+        didSwap = true;
 
         steps.push({
-          array: [...arr],
-          swap: [j, j + 1],
+          array: a.slice(),
+          swapped: [j, j + 1],
           highlight: [j, j + 1],
-          sorted: [...sortedIdx],
+          message: `Swap: because ${a[j]} should come before ${a[j + 1]}.`,
           comparisons,
           swaps,
           passes,
           writes,
-          message: `Out of order → Swap`,
+          sortedIndices: sortedIndices.slice(),
         });
       }
     }
 
-    const fixed = n - i - 1;
-    sortedIdx.unshift(fixed);
+    passes += 1;
+
+    // element at (n - 1 - pass) is now fixed
+    const fixed = n - 1 - pass;
+    if (!sortedIndices.includes(fixed)) sortedIndices.unshift(fixed);
 
     steps.push({
-      array: [...arr],
-      sorted: [...sortedIdx],
+      array: a.slice(),
+      sortedIndices: sortedIndices.slice(),
+      message: `Pass ${pass + 1} complete. Index ${fixed} is now fixed (sorted region grows from the right).`,
       comparisons,
       swaps,
       passes,
       writes,
-      message: `Pass ${passes} complete → Largest element fixed at index ${fixed}`,
     });
+
+    if (!didSwap) {
+      // Already sorted — mark all remaining indices as sorted
+      const remaining = Array.from({ length: fixed }, (_, k) => k);
+      const allSorted = Array.from(new Set([...remaining, ...sortedIndices])).sort((x, y) => x - y);
+
+      steps.push({
+        array: a.slice(),
+        sortedIndices: allSorted,
+        message: "No swaps in this pass → the array is already sorted. ✅",
+        comparisons,
+        swaps,
+        passes,
+        writes,
+      });
+
+      return steps;
+    }
   }
 
-  if (n > 0 && !sortedIdx.includes(0)) sortedIdx.unshift(0);
-
   steps.push({
-    array: [...arr],
-    sorted: [...Array(n).keys()],
+    array: a.slice(),
+    sortedIndices: Array.from({ length: n }, (_, i) => i),
+    message: "Array sorted successfully. ✅",
     comparisons,
     swaps,
     passes,
     writes,
-    message: "Array sorted successfully (Bubble Sort)",
   });
 
   return steps;

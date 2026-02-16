@@ -1,16 +1,46 @@
-import type { AlgoInfo } from "../components/AlgorithmInfoCard";
-import type { LearnQuestion } from "../components/LearnModePanel";
+// src/algorithms/registry.ts
 
-// If you already have algorithm states in other files,
-// keep your existing imports here.
-// NOTE: These are placeholders to match your current architecture.
-// You likely already export "algorithms" as an array used in VisualizerPage.
-// Keep the same IDs you already use in the app.
+/**
+ * IMPORTANT:
+ * Your components currently export default components, not named types.
+ * So we define the required types locally to avoid TS2614 import errors.
+ */
 
 export type AlgorithmRegistryItem = {
   id: string;
   name: string;
   category: "Sorting" | "Searching" | "Other";
+};
+
+export type AlgoInfo = {
+  id: string;
+  name: string;
+  category: "Sorting" | "Searching" | "Other";
+  short: string;
+  whenToUse: string[];
+  complexity: {
+    best: string;
+    average: string;
+    worst: string;
+    space: string;
+  };
+  stable?: boolean;
+  inPlace?: boolean;
+  notes?: string[];
+};
+
+export type LearnQuestionOption = {
+  id: string;
+  text: string;
+  correct?: boolean;
+  why?: string;
+};
+
+export type LearnQuestion = {
+  id: string;
+  prompt: string;
+  options: LearnQuestionOption[];
+  tip?: string;
 };
 
 // ✅ Keep these IDs exactly matching what your app currently uses

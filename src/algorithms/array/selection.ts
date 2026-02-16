@@ -1,7 +1,7 @@
 import type { ArrayState } from "../types";
 
 export function selectionSortSteps(input: number[]): ArrayState[] {
-  const arr = [...input];
+  const a = input.slice();
   const steps: ArrayState[] = [];
 
   let comparisons = 0;
@@ -9,115 +9,116 @@ export function selectionSortSteps(input: number[]): ArrayState[] {
   let passes = 0;
   let writes = 0;
 
+  const n = a.length;
+
   steps.push({
-    array: [...arr],
-    message: "Starting Selection Sort (pick min from unsorted, grow sorted prefix)",
+    array: a.slice(),
+    message: "Start Selection Sort: each pass selects the minimum from the unsorted region and swaps it into place.",
     comparisons,
     swaps,
     passes,
     writes,
+    sortedIndices: [],
   });
 
-  const n = arr.length;
-  const sortedPrefix: number[] = [];
-
-  for (let i = 0; i < n - 1; i++) {
-    passes++;
+  for (let i = 0; i < n; i++) {
     let minIdx = i;
 
     steps.push({
-      array: [...arr],
+      array: a.slice(),
       highlight: [i],
-      sorted: [...sortedPrefix],
+      message: `Pass ${i + 1}: find the minimum in indices ${i}..${n - 1}.`,
       comparisons,
       swaps,
       passes,
       writes,
-      message: `Pass ${passes}: find the minimum from indices ${i}..${n - 1}`,
+      sortedIndices: Array.from({ length: i }, (_, k) => k),
     });
 
     for (let j = i + 1; j < n; j++) {
-      comparisons++;
+      comparisons += 1;
 
       steps.push({
-        array: [...arr],
+        array: a.slice(),
+        comparing: [minIdx, j],
         highlight: [minIdx, j],
-        sorted: [...sortedPrefix],
+        message: `Compare current min a[${minIdx}]=${a[minIdx]} with a[${j}]=${a[j]}.`,
         comparisons,
         swaps,
         passes,
         writes,
-        message: `Compare current min a[${minIdx}] = ${arr[minIdx]} with a[${j}] = ${arr[j]}`,
+        sortedIndices: Array.from({ length: i }, (_, k) => k),
       });
 
-      if (arr[j] < arr[minIdx]) {
+      if (a[j] < a[minIdx]) {
         minIdx = j;
 
         steps.push({
-          array: [...arr],
+          array: a.slice(),
           highlight: [minIdx],
-          sorted: [...sortedPrefix],
+          message: `New minimum found at index ${minIdx} (value ${a[minIdx]}).`,
           comparisons,
           swaps,
           passes,
           writes,
-          message: `New minimum found at index ${minIdx} (value ${arr[minIdx]})`,
+          sortedIndices: Array.from({ length: i }, (_, k) => k),
         });
       }
     }
 
     if (minIdx !== i) {
-      swaps++;
+      const tmp = a[i];
+      a[i] = a[minIdx];
+      a[minIdx] = tmp;
+
+      swaps += 1;
       writes += 2;
-      [arr[i], arr[minIdx]] = [arr[minIdx], arr[i]];
 
       steps.push({
-        array: [...arr],
-        swap: [i, minIdx],
+        array: a.slice(),
+        swapped: [i, minIdx],
         highlight: [i, minIdx],
-        sorted: [...sortedPrefix],
+        message: `Swap: place minimum into position ${i} (swap indices ${i} and ${minIdx}).`,
         comparisons,
         swaps,
         passes,
         writes,
-        message: `Swap min into position i=${i}`,
+        sortedIndices: Array.from({ length: i }, (_, k) => k),
       });
     } else {
       steps.push({
-        array: [...arr],
+        array: a.slice(),
         highlight: [i],
-        sorted: [...sortedPrefix],
+        message: `Index ${i} already contains the minimum. No swap needed.`,
         comparisons,
         swaps,
         passes,
         writes,
-        message: `Index ${i} already has the minimum. No swap.`,
+        sortedIndices: Array.from({ length: i }, (_, k) => k),
       });
     }
 
-    sortedPrefix.push(i);
+    passes += 1;
 
     steps.push({
-      array: [...arr],
-      sorted: [...sortedPrefix],
+      array: a.slice(),
+      sortedIndices: Array.from({ length: i + 1 }, (_, k) => k),
+      message: `Pass complete. Prefix (0..${i}) is sorted.`,
       comparisons,
       swaps,
       passes,
       writes,
-      message: `Sorted prefix grows: indices 0..${i} are sorted`,
     });
   }
 
-  if (n > 0) sortedPrefix.push(n - 1);
-
   steps.push({
-    array: [...arr],
-    sorted: [...Array(n).keys()],
+    array: a.slice(),
+    sortedIndices: Array.from({ length: n }, (_, i) => i),
+    message: "Array sorted successfully. ✅",
     comparisons,
     swaps,
     passes,
     writes,
-    message: "Array sorted successfully (Selection Sort)",
   });
 
   return steps;
